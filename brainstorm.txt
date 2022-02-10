@@ -1,0 +1,7 @@
+teams modifiers:
+1. add team
+2. add member
+3. change name
+4. remove member
+5. remove team
+6. add projects
