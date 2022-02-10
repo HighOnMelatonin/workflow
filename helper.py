@@ -9,22 +9,65 @@ import exceptions
 
 
 class overview:
+    '''
+    Methods defined in the overview class
+    
+    overview.addproject(title, date, teamic, tasks)
+    title: a string for the title of the project
+    date: a tuple for the project's completion date, in the YYYY/MM/DD format
+    teamic: a string for the name of the team in charge
+    tasks: a list of tasks that need to be done for the project, each object in the list is an instance of a task
+
+    overview.removeproject(title)
+    title: name of the project to be removed
+
+
+    '''
     def __init__(self, teams = list(), projects = list()) -> None:
         self.__teams = teams
         self.__projects = projects
 
+    ##Private methods
+    def _getproject(self, title):
+        '''
+        Returns the index of the project in the list of projects, raises
+        InvalidProjectName error if project cannot be found
+        '''
+        for i in range(self.__projects):
+            if self.__projects[i].gettitle() == title:
+                return i
+
+        raise exceptions.InvalidProjectName
     
+
+    def _getteams(self):
+        '''
+        Returns a list of all team names
+        '''
+        teams = []
+        for team in self.__teams:
+            teams.append(team.getname())
+
+        return teams
+
+
+    def _getteam(self, teamname):
+        for i in range(len(self.__teams)):
+            if self.__teams[i].getname() == teamname:
+                return i
+
+        raise exceptions.GhostTeam
+
+
+
     ##Project modifiers
     def addproject(self, title = str(), date = tuple((1, 1, 1)), teamic = str(), tasks = list()):
         self.__projects.append(_project.project(title, date, teamic, tasks))
 
     def removeproject(self, title):
-        for i in range(len(self.__projects)):
-            if self.__projects[i].gettitle() == title:
-                self.__projects.pop(i)
-                return
-
-        raise exceptions.InvalidProjectName
+        i = self._getproject(title)
+        self.__projects.pop(i)
+        return
 
     def allprojects(self):
         '''
@@ -36,30 +79,26 @@ class overview:
         '''
         Returns the details of 1 project
         '''
-        for i in range(len(self.__projects)):
-            if self.__projects[i].gettitle() == title:
-                return self.__projects[i]
+        i = self._getproject(title)
+        return self.__projects[i]
 
-        raise exceptions.InvalidProjectName
+    def changeproname(self, title, newtitle):
+        i = self._getproject(title)
+        self.__projects[i].settitle(newtitle)
+
 
     def addtask(self, title, taskname, date, desc):
-        for i in range(len(self.__projects)):
-            if self.__projects[i].gettitle() == title:
-                self.__projects[i].addtask(taskname, date, desc)
-                return
-
-        raise exceptions.InvalidProjectName
+        i = self._getproject(title)
+        self.__projects[i].addtask(taskname, date, desc)
 
     def removetask(self, title, taskname):
-        removed = False
-        for i in range(len(self.__projects)):
-            if self.__projects[i].gettitle() == title:
-                self.__projects.removetask(taskname)
-                removed = True
-                break
+        i = self._getproject(title)
+        self.__projects[i].removetask(taskname)
 
-        if not removed:
-            raise exceptions.InvalidProjectName
+    def editdesc(self, title, taskname, newdesc):
+        i = self._getproject(title)
+        self.__projects[i].setdesc(taskname, newdesc)
+
 
     def assignproject(self, teamic, title):
         assigned = False
@@ -73,7 +112,7 @@ class overview:
                         break
                 
                 if not teamfound:
-                    raise exceptions.InvalidTeamName
+                    raise exceptions.GhostTeam
 
                 self.__projects[i].setteam(teamic)
                 assigned = True
@@ -82,6 +121,16 @@ class overview:
         if not assigned:
             raise exceptions.InvalidProjectName
 
+
+    def setprodue(self, title, date):
+        ##date should be a tuple or list in the form YYYY/MM/DD
+        i = self._getproject(title)
+        self.__projects[i].setdue(date)
+
+
+    def settaskdue(self, title, taskname, date):
+        i = self._getproject(title)
+        self.__projects[i].settaskdue(taskname, date)
 
 
     ##team modifiers
@@ -96,8 +145,11 @@ class overview:
                 self.__teams[i].pop(i)
                 return
 
-        raise exceptions.InvalidTeamName
+        raise exceptions.GhostTeam
 
+    def changename(self, teamname, newname):
+        i = self._getteam(teamname)
+        self.__teams[i].setname(newname)
         
 
     def allteams(self):
@@ -114,25 +166,16 @@ class overview:
             if self.__teams[i].getname() == teamname:
                 return self.__teams[i]
 
-        raise exceptions.InvalidTeamName
+        raise exceptions.GhostTeam
 
-    def _getteams(self):
-        '''
-        Returns a list of all team names
-        '''
-        teams = []
-        for team in self.__teams:
-            teams.append(team.getname())
-
-        return teams
-
+   
     def addmember(self, teamname, membername, position):
         for i in range(len(self.__teams)):
             if self.__teams[i].getname() == teamname:
                 self.__teams[i].addmember(membername, position)
                 return
 
-        raise exceptions.InvalidTeamName
+        raise exceptions.GhostTeam
 
     def removemember(self, teamname, membername, position):
         removed = False

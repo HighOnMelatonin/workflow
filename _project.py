@@ -58,6 +58,16 @@ class project:
         self.__tasks = tasks
     
 
+    ##Private methods
+    def _gettask(self, taskname):
+        for i in range(len(self.__tasks)):
+            if self.__tasks[i] == taskname:
+                return i
+
+        raise exceptions.NoSuchTask
+
+
+    ##Modify the project
     def gettitle(self):
         return self.__title
 
@@ -115,51 +125,35 @@ Due date: {self.getdue()}
         return self.__tasks
 
     def removetask(self, taskname):
-        for i in range(len(self.__tasks)):
-            if self.__tasks[i].gettitle() == taskname:
-                self.__tasks.pop(i)
-
-                return
-        
-        raise exceptions.NoSuchTask
+        i = self._gettask(taskname)
+        self.__tasks.pop(i)
+        return
 
     def checktask(self, taskname):
-        for i in range(len(self.__tasks)):
-            if self.__tasks[i].gettitle() == taskname:
-                status = self.__tasks[i].getstatus()
-                title = self.__tasks[i].gettitle()
-                due = self.__tasks[i].getdue()
-                desc = self.__tasks[i].getdescription()
+        i = self._gettask(taskname)
+        status = self.__tasks[i].getstatus()
+        title = self.__tasks[i].gettitle()
+        due = self.__tasks[i].getdue()
+        desc = self.__tasks[i].getdescription()
 
-                return (status, title, due, desc)
-
-        raise exceptions.NoSuchTask
+        return (status, title, due, desc)
 
     def taskdone(self, taskname):
-        done = False
-        for i in range(len(self.__tasks)):
-            if self.__tasks[i].gettitle() == taskname:
-                self.__tasks[i].check()
-                done = True
-                break
-
-        if not done:
-            raise exceptions.NoSuchTask
+        i = self._gettask(taskname)
+        self.__tasks[i].check()
 
         print(f"{self.__tasks[i].gettitle()} is done")
 
     def taskundone(self, taskname):
-        undone = False
-        for i in range(len(self.__tasks)):
-            if self.__tasks[i].gettitle() == taskname:
-                self.__tasks[i].uncheck()
-                undone = True
-                break
-
-        if not undone:
-            raise exceptions.NoSuchTask
+        i = self._gettask(taskname)
+        self.__tasks[i].uncheck()
 
         print(f"{self.__tasks[i].gettitle()} is not done")
 
+    def setdesc(self, taskname, newdesc):
+        i = self._gettask(taskname)
+        self.__tasks[i].setdescription(newdesc)
 
-
+    def settaskdue(self, taskname, date):
+        i = self._gettask(taskname)
+        self.__tasks[i].setdue(date)

@@ -74,7 +74,6 @@ class team:
         raise exceptions.Ghost
     
 
-
     def addproject(self, title):
         self.__projects.append(title)
 
