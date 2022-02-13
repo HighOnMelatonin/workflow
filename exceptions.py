@@ -1,4 +1,4 @@
-import datetime
+##Exceptions for workflow
 
 class InvalidProjectName(Exception):
     def __str__(self):
@@ -38,3 +38,13 @@ class MethodMadness(Exception):
     def __str__(self):
         message = "No such methods exist"
         return message
+
+
+class InvalidType(Exception):
+    def __str__(self):
+        message = "You have requested for something that doesn't exist in our system right now"
+        return message
+
+
+
+
