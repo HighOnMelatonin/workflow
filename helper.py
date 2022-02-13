@@ -1,6 +1,10 @@
-##Combines project and team, to allow for an overview of various projects and teams
-##Code has not be optimised (see overview.assignproject(), nested for loop)
+'''
+Combines project and team, to allow for an overview of various projects and teams to help the main program
 
+
+Code has not be optimised (see overview.assignproject(), nested for loop)
+
+'''
 
 import _team
 import _project
@@ -10,25 +14,14 @@ import exceptions
 
 class overview:
     '''
-    Methods defined in the overview class
-    
-    overview.addproject(title, date, teamic, tasks)
-    title: a string for the title of the project
-    date: a tuple for the project's completion date, in the YYYY/MM/DD format
-    teamic: a string for the name of the team in charge
-    tasks: a list of tasks that need to be done for the project, each object in the list is an instance of a task
-
-    overview.removeproject(title)
-    title: name of the project to be removed
-
-
+    This class combines the project and team object, as one more layer of abstraction before being saved as a pkl file
     '''
     def __init__(self, teams = list(), projects = list()) -> None:
         self.__teams = teams
         self.__projects = projects
 
     ##Private methods
-    def _getproject(self, title):
+    def _getProject(self, title):
         '''
         Returns the index of the project in the list of projects, raises
         InvalidProjectName error if project cannot be found
@@ -40,7 +33,7 @@ class overview:
         raise exceptions.InvalidProjectName
     
 
-    def _getteams(self):
+    def _getTeams(self):
         '''
         Returns a list of all team names
         '''
@@ -51,7 +44,7 @@ class overview:
         return teams
 
 
-    def _getteam(self, teamname):
+    def _getTeam(self, teamname):
         for i in range(len(self.__teams)):
             if self.__teams[i].getname() == teamname:
                 return i
@@ -59,48 +52,138 @@ class overview:
         raise exceptions.GhostTeam
 
 
+    def _checkDate(self, date):
+        '''
+        Checks if date is in the correct format (YYYY/MM/DD)
+        Raises exceptions.InvalidDate if date is not in the right format
+        DOES NOT CHECK IF THE DATE IS A VALID DATE, that is for datetime to do
+        '''
+        
+        one, two, three = type(date[0]) == int, type(date[1]) == int, type(date[2]) == int
+        if one and two and three:
+            return
+
+        else:
+            raise exceptions.InvalidDate
+
 
     ##Project modifiers
-    def addproject(self, title = str(), date = tuple((1, 1, 1)), teamic = str(), tasks = list()):
+    def addProject(self, title = str(), date = tuple((1, 1, 1)), teamic = str(), tasks = list()):
+        '''
+        Makes a new project
+
+        :param title:   The title of the project
+        :type title:    (str)
+
+        :param date:    The project's completion date in YYYY/MM/DD format
+        :type date:     tuple(int, int, int)
+
+        :param teamic:  The team in charge of the project
+        :type teamic:   (str)
+
+        :param tasks:   Tasks to be done for the project
+        :type tasks:    List[task]
+        '''
+        self._checkDate(date)
         self.__projects.append(_project.project(title, date, teamic, tasks))
 
-    def removeproject(self, title):
-        i = self._getproject(title)
+    def removeProject(self, title):
+        '''
+        Deletes a project
+
+        :param title:   Title of the project to be removed
+        :type title:    (str)
+        '''
+        i = self._getProject(title)
         self.__projects.pop(i)
         return
 
-    def allprojects(self):
+    def allProjects(self):
         '''
         Returns a list of all the project objects
+
+        :return: List[project]
         '''
         return self.__projects
 
-    def viewproject(self, title):
+    def viewProject(self, title):
         '''
         Returns the details of 1 project
+
+        :param title:   The title of the project
+        :type title:    (str)
+
+        :return:        (project)
         '''
-        i = self._getproject(title)
+        i = self._getProject(title)
         return self.__projects[i]
 
-    def changeproname(self, title, newtitle):
-        i = self._getproject(title)
+    def changeProName(self, title, newtitle):
+        '''
+        Changes the project title
+
+        :param title:       The original title of the project
+        :type title:        (str)
+
+        :param newtitle:    The new title of the project
+        :type newtitle:     (str)
+        '''
+        i = self._getProject(title)
         self.__projects[i].settitle(newtitle)
 
 
-    def addtask(self, title, taskname, date, desc):
-        i = self._getproject(title)
+    def addTask(self, title, taskname, date, desc):
+        '''
+        :param title:      Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task to be added
+        :type taskname:     (str)
+
+        :param date:        Due date for the task in YYYY/MM/DD format
+        :type date:         tuple(int, int, int)
+
+        :param desc:        Description of the task
+        :type desc:         (str)
+        '''
+        self._checkDate()
+        i = self._getProject(title)
         self.__projects[i].addtask(taskname, date, desc)
 
-    def removetask(self, title, taskname):
-        i = self._getproject(title)
+    def removeTask(self, title, taskname):
+        '''
+        :param title:      Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task to be removed
+        :type taskname:     (str)
+        '''
+        i = self._getProject(title)
         self.__projects[i].removetask(taskname)
 
-    def editdesc(self, title, taskname, newdesc):
-        i = self._getproject(title)
+    def editDesc(self, title, taskname, newdesc):
+        '''
+        :param title:       Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task to be edited
+        :type taskname:     (str)
+
+        :param newdesc:     The new description to replace the previous
+        :type newdesc:      (str)
+        '''
+        i = self._getProject(title)
         self.__projects[i].setdesc(taskname, newdesc)
 
 
-    def assignproject(self, teamic, title):
+    def assignProject(self, teamic, title):
+        '''
+        :param teamic:  The name of the team in charge
+        :type teamic:   (str)
+
+        :param title:   The project title
+        :type title:    (str)
+        '''
         assigned = False
         for i in range(len(self.__projects)):
             if self.__projects[i].gettitle() == title:
@@ -122,24 +205,50 @@ class overview:
             raise exceptions.InvalidProjectName
 
 
-    def setprodue(self, title, date):
-        ##date should be a tuple or list in the form YYYY/MM/DD
-        i = self._getproject(title)
+    def setProDue(self, title, date):
+        '''
+        :param title:   Title of the project
+        :type title:    (str)
+
+        :param date:    New due date for the project, YYYY/MM/DD format
+        :type date:     tuple(int, int, int)
+        '''
+        self._checkDate()
+        i = self._getProject(title)
         self.__projects[i].setdue(date)
 
 
-    def settaskdue(self, title, taskname, date):
-        i = self._getproject(title)
+    def setTaskDue(self, title, taskname, date):
+        '''
+        :param title:       Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task
+        :type taskname:     (str)
+
+        :param date:        New due date for the task, YYYY/MM/DD format
+        :type date:         tuple(int, int, int)
+        '''
+        self._checkDate()
+        i = self._getProject(title)
         self.__projects[i].settaskdue(taskname, date)
 
 
     ##team modifiers
-    def addteam(self, teamname):
+    def addTeam(self, teamname):
+        '''
+        :param teamname:    Name of the team
+        :type teamname:     (str)
+        '''
         this_team = _team.team()
         this_team.setname(teamname)
         self.__teams.append(this_team)
     
-    def removeteam(self, teamname):
+    def removeTeam(self, teamname):
+        '''
+        :param teamname:    Name of team to be removed
+        :type teamname:     (str)
+        '''
         for i in range(len(self.__teams)):
             if self.__teams[i].getname() == teamname:
                 self.__teams[i].pop(i)
@@ -147,20 +256,31 @@ class overview:
 
         raise exceptions.GhostTeam
 
-    def changename(self, teamname, newname):
-        i = self._getteam(teamname)
+    def changeTeamName(self, teamname, newname):
+        '''
+        :param teamname:    Original team name
+        :type teamname:     (str)
+
+        :param newname:     New team name
+        :type teamname:     (str)
+        '''
+        i = self._getTeam(teamname)
         self.__teams[i].setname(newname)
         
 
-    def allteams(self):
+    def allTeams(self):
         '''
         Returns a list of all the team objects
+
+        :return: List(team)
         '''
         return self.__teams
 
-    def viewteam(self, teamname):
+    def viewTeam(self, teamname):
         '''
         Returns the details of 1 team
+
+        :return:    (team)
         '''
         for i in range(len(self.__teams)):
             if self.__teams[i].getname() == teamname:
@@ -169,7 +289,17 @@ class overview:
         raise exceptions.GhostTeam
 
    
-    def addmember(self, teamname, membername, position):
+    def addMember(self, teamname, membername, position):
+        '''
+        :param teamname:    Name of the team
+        :type teamname:     (str)
+
+        :param membername:  Name of the new member
+        :type membername:   (str)
+
+        :param position:    New member's position
+        :type position:     (str)
+        '''
         for i in range(len(self.__teams)):
             if self.__teams[i].getname() == teamname:
                 self.__teams[i].addmember(membername, position)
@@ -177,7 +307,17 @@ class overview:
 
         raise exceptions.GhostTeam
 
-    def removemember(self, teamname, membername, position):
+    def removeMember(self, teamname, membername, position):
+        '''
+        :param teamname:    Name of the team
+        :type teamname:     (str)
+
+        :param membername:  Name of the member to be removed
+        :type membername:   (str)
+
+        :param position:    Position of the member
+        :type postion:      (str)
+        '''
         removed = False
         for i in range(len(self.__teams)):
             if self.__teams[i].getname() == teamname:
