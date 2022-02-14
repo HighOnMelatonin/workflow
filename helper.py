@@ -26,7 +26,7 @@ class overview:
         Returns the index of the project in the list of projects, raises
         InvalidProjectName error if project cannot be found
         '''
-        for i in range(self.__projects):
+        for i in range(len(self.__projects)):
             if self.__projects[i].gettitle() == title:
                 return i
 
@@ -174,6 +174,14 @@ class overview:
         '''
         i = self._getProject(title)
         self.__projects[i].setdesc(taskname, newdesc)
+
+    def taskDone(self, title, taskname):
+        i = self._getProject(title)
+        self.__projcts[i].taskDone(taskname)
+
+    def taskUndone(self, title, taskname):
+        p = self._getProject(title)
+        self.__projects[p].taskUndone(taskname)
 
 
     def assignProject(self, teamic, title):
@@ -336,8 +344,15 @@ class overview:
 
         return message
 
-    
-        
+    def changePos(self, teamname, membername, position, newpos):
+        for i in range(len(self.__teams)):
+            if self.__teams[i].getname() == teamname:
+                self.__teams[i].changePos(membername, position, newpos)
+                return
+
+        raise exceptions.exceptions.GhostTeam
+
+
 
 
 

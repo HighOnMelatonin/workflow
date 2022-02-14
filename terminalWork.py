@@ -13,11 +13,15 @@ import json
 import pickle
 import exceptions
 import os
+import _team
+import _project
 
 
 class Running:
     '''
     This class handles the pkl files that save all the instances and modifications made to the objects
+    
+    Modifications to the objects in the class do not reflect in the .pkl file immediately, user needs to commit before the changes are reflected in the file
     '''
     def __init__(self):
         if not os.path.isdir('misc'):
@@ -43,37 +47,10 @@ class Running:
         
         file = open('misc/masterLog.pkl','wb')
         self.__master = pickle.load(file)
-        self.__selected = str()
         file.close()
 
 
     ##Private methods
-    def _changeSelected(self, new, selectType):
-        '''
-        Change the object selected, no checks are done in this method, checks should be done before accessing this method
-
-        :param new:         The name of the new selection (project name or team name)
-        :type new:          (str)
-
-        :param selectType:  Determines whether the selection is a project or team
-        :type selectType:   (str)
-
-        :return:            The project or team object specified
-        '''
-        if selectType == 'p':
-            self.__selected = self.__master.viewproject(new)
-            return self.__selected
-
-        elif selectType == 't':
-            self.__selected = self.__master.viewteam(new)
-            return self.__selected
-
-        else:
-            raise exceptions.InvalidType
-
-    def _getselected(self):
-        return self.__selected
-
 
     def _makefile(self, filename):
         '''
@@ -136,7 +113,7 @@ class Running:
         raw.close()
         return output
 
-    def _addteam(self, currTeam):
+    def _addTeam(self, currTeam):
         '''
         Saves the team name of the new team to a json file
 
@@ -158,7 +135,7 @@ class Running:
         self._saveFile(filename, currTeam)
 
 
-    def _addproject(self, currProject):
+    def _addProject(self, currProject):
         '''
         Saves the project title of the new project to a json file
 
@@ -173,7 +150,7 @@ class Running:
         json.dump(output, raw, indent = 4)
         raw.close()
     
-    def _getprojects(self):
+    def _getProjects(self):
         raw = open('misc/projects/projects.json', 'r')
         output = json.load(raw)
         raw.close()
@@ -240,6 +217,7 @@ class Running:
     def addtask(self, title, taskname, date, desc):
         filename = 'misc/projects/' + title + '.pkl'
         self._checkFile(filename)
+        self.__master.addTask(title, taskname, date, desc)
         
 
 
@@ -260,6 +238,11 @@ class Running:
         self._saveFile(filename, self.__master._getteam(teamname))
 
     
+    ##Member
+    def addmember(self, teamname, name, postion):
+        self.__master.addMember(teamname, name, postion)
+    
+
     ##Modifying
     ##Project
     def changeProName(self, title, newtitle):
@@ -283,22 +266,168 @@ class Running:
     def removeProject(self, title):
         self.__master.removeProject(title)
 
+
     ##Tasks
     def setTaskDue(self, title, taskname, date):
         self.__master.setTaskDue(title, taskname, date)
 
+    def removeTask(self, title, taskname):
+        self.__master.removeTask(title, taskname)
+
+    def editDesc(self, title, taskname, newdesc):
+        self.__master.editDesc(title, taskname, newdesc)
+
+    def taskDone(self, title, taskname):
+        self.__master.taskDone(title, taskname)
+
+    def taskUndone(self, title, taskname):
+        self.__master.taskUndone(title, taskname)
+    
+    ##Team
+    def removeTeam(self, teamname):
+        self.__master.removeTeam(teamname)
+
+    def changeTeamName(self, teamname, newname):
+        self.__master.changeTeamName(teamname, newname)
+
+    
+    ##Member
+    def removeMember(self, teamname, membername, position):
+        self.__master.removeMember(teamname, membername, position)
+
+    def changePos(self, teamname, membername, position, newpos):
+        self.__master.changePos(self, teamname, membername, position, newpos)
+
+
+    ##Display
+    ##Projects
+    def getProject(self, title):
+        '''
+        :return:    (project)
+        '''
+        return self.__master.viewProject(title)
+
+    def allProjects(self):
+        return self.__master.allProjects()
+
+    
+    ##Tasks
+    def getTask(self, title, taskname):
+        p = self.__master.viewProject(title)
+        task = p.checktask(taskname)
+        return task
+
+    def allTasks(self, title):
+        p = self.__master.viewProject(title)
+        tasks = p.gettasks()
+        return tasks
+
+
+    ##Teams
+    def getTeam(self, teamname):
+        return self.__master.viewTeam(teamname)
+
+    def allTeams(self):
+        return self.__master.allTeams()
+
+    
+    ##Members
+    def getMember(self, teamname, name, position):
+        t = self.__master.viewTeam(teamname)
+        member = t.getMember(name, position)
+        return member
+
+    def allMembers(self, teamname):
+        t = self.__master.allTeams()
+        members = t.getmembers
+        return members
+
+    
+
+    ##Commit
+    def commit(self):
+        self._saveFile('misc/masterLog.pkl', self.__master)
 
 
 
 
-class interface():
+class interface:
     '''
     This class deals with the user interface
     '''
     def __init__(self):
         self.__background = Running()
+        self.__active = None
+
+
+    ##Selection
+    def _changeActive(self, new, datatype):
+        '''
+        Changes the value of self.__active to the object selected
+
+        :param new:         The title of the project or team name
+        :type new:          (str)
+
+        :param datatype:    Determines whether its a project or team
+        :type datatype:     (str)
+
+        :return:            None
+        '''
+        if datatype == 'p':
+            self.__active = self.__background.getProject(new)
+
+        elif datatype == 't':
+            self.__active = self.__background.getTeam(new)
+
+        else:
+            raise exceptions.InvalidType
+
+    def _getActive(self):
+        return self.__active
+
+
+    def _updateMain(self):
+        datatype = type(self.__active)
+        if datatype == _team.team:
+            name = self.__active.getName()
+
+        elif datatype == _project.project:
+            title = self.__active.getTitle()
+
+        else:
+            raise exceptions.InvalidType
+
 
     ##View
     ##Project
     def viewProject(self):
         pass
+
+
+    def projectStatus(self):
+        status = self.__active.getStatus()
+        print(f"{self.__active.getTitle()} is {status*100:.2f}% complete")
+
+
+
+
+    ##Commit
+    def commit(self):
+        self.__background.commit()
+
+class admin(interface):
+    '''
+    This class deals with the user interface for admins, making more methods available
+    '''
+    def __init__(self):
+        super().__init__()
+
+
+
+class regular(interface):
+    '''
+    This class deals with the user interface for regular users, restricting access to methods
+    '''
+    def __init__(self):
+        super().__init__()
+

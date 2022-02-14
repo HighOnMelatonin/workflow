@@ -36,7 +36,7 @@ class InvalidDate(Exception):
 
 class MethodMadness(Exception):
     def __str__(self):
-        message = "No such methods exist"
+        message = "No such method exist"
         return message
 
 

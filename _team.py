@@ -46,6 +46,9 @@ class team:
         return str((self.__size, self.__members, self.__projects, self.__teamname))
 
     def __init__(self):
+        '''
+        
+        '''
         self.__size = int()
         self.__members = list()
         self.__projects = list()
@@ -73,6 +76,21 @@ class team:
 
         raise exceptions.Ghost
     
+    def changePos(self, name, position, newpos):
+        for i in range(len(self.__members)):
+            if self.__members[i].getname() == name and self.__members[i].getposition() == position:
+                self.__members[i].setpos(newpos)
+                return
+
+        raise exceptions.Ghost
+
+    def getMember(self, name, position):
+        for i in range(len(self.__members)):
+            if self.__members[i].getname() == name and self.__members[i].getposition() == position:
+                return self.__members[i]
+
+        raise exceptions.Ghost
+
 
     def getprojects(self):
         return self.__projects
@@ -84,10 +102,11 @@ class team:
         self.projects.remove(title)
 
 
-    def getname(self):
+    def getName(self):
         return self.__teamname
 
     def setname(self, teamname):
         self.__teamname = teamname
+
 
 

@@ -52,6 +52,7 @@ class project:
         return str((self.__title, self.__due, self.__teamic, self.__tasks))
     
     def __init__(self, title, date, teamic, tasks):
+        ##Maybe add an option for user-defined attributes
         self.__title = title
         self.__due = datetime.date(date[0], date[1], date[2])
         self.__teamic = teamic
@@ -90,7 +91,7 @@ class project:
         self.__due = datetime.date(date[0], date[1], date[2])
 
 
-    def getstatus(self):
+    def getStatus(self):
         done = 0
         total = 0
         for task in self.__tasks:
@@ -138,13 +139,13 @@ Due date: {self.getdue()}
 
         return (status, title, due, desc)
 
-    def taskdone(self, taskname):
+    def taskDone(self, taskname):
         i = self._gettask(taskname)
         self.__tasks[i].check()
 
         print(f"{self.__tasks[i].gettitle()} is done")
 
-    def taskundone(self, taskname):
+    def taskUndone(self, taskname):
         i = self._gettask(taskname)
         self.__tasks[i].uncheck()
 
