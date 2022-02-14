@@ -8,5 +8,9 @@ Workflow is an app that helps to streamline concurrent projects and tasks to var
 import helper
 import PyQt5
 import exceptions
+import _project
+import _team
+from terminalWork import Running
+
 
 
