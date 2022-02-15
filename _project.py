@@ -20,29 +20,29 @@ class task:
     def uncheck(self):
         self.__done = False
 
-    def getstatus(self):
+    def getStatus(self):
         return self.__done
 
     
-    def settitle(self, title):
+    def setTitle(self, title):
         self.__title = title
 
-    def gettitle(self):
+    def getTitle(self):
         return self.__title
 
 
-    def getdescription(self):
+    def getDescription(self):
         return self.__description
 
-    def setdescription(self, desc):
+    def setDescription(self, desc):
         self.__description = desc
 
 
-    def setdue(self, date):
+    def setDue(self, date):
         ##parameter date should be a tuple or a list of length 3 of integers in format (YYYY,MM,DD)
         self.__due = datetime.date(date[0], date[1], date[2])
 
-    def getdue(self):
+    def getDue(self):
         return (self.__due.year, self.__due.month, self.__due.day)
 
 
@@ -60,7 +60,7 @@ class project:
     
 
     ##Private methods
-    def _gettask(self, taskname):
+    def _getTask(self, taskname):
         for i in range(len(self.__tasks)):
             if self.__tasks[i] == taskname:
                 return i
@@ -69,24 +69,24 @@ class project:
 
 
     ##Modify the project
-    def gettitle(self):
+    def getTitle(self):
         return self.__title
 
-    def settitle(self, title):
+    def setTitle(self, title):
         self.__title = title
 
 
-    def getteam(self):
+    def getTeam(self):
         return self.__teamic
 
-    def setteam(self, teamname):
+    def setTeam(self, teamname):
         self.__teamic = teamname
 
     
-    def getdue(self):
+    def getDue(self):
         return (self.__due.year, self.__due.month, self.__due.day)
 
-    def setdue(self, date):
+    def setDue(self, date):
         ##parameter date should be a tuple or a list of length 3 of integers in format (YYYY,MM,DD)
         self.__due = datetime.date(date[0], date[1], date[2])
 
@@ -97,65 +97,65 @@ class project:
         for task in self.__tasks:
             total += 1
 
-            if task.getstatus():
+            if task.getStatus():
                 done += 1
 
         return (done/total)
     
 
     def display(self):
-        print(f"""{self.gettitle()}:
+        print(f"""{self.getTitle()}:
 
-Team in charge: {self.getteam()}
-Due date: {self.getdue()}
+Team in charge: {self.getTeam()}
+Due date: {self.getDue()}
 
-{'Project status':<50}|{self.getstatus()*100:>20.2f}% complete""")
+{'Project status':<50}|{self.getStatus()*100:>20.2f}% complete""")
 
         print(f"{'Task':<50}|{'Completed':>30}")
         print('='*82)
 
         for task in self.__tasks:
-            print(f"{task.gettitle():<50}|{str(task.getstatus()):>30}")
+            print(f"{task.getTitle():<50}|{str(task.getStatus()):>30}")
     
 
     ##Modify tasks
-    def addtask(self, taskname, date, desc):
+    def addTask(self, taskname, date, desc):
         self.__tasks.append(task(taskname, date, desc))
 
-    def gettasks(self):
+    def getTasks(self):
         return self.__tasks
 
-    def removetask(self, taskname):
-        i = self._gettask(taskname)
+    def removeTask(self, taskname):
+        i = self._getTask(taskname)
         self.__tasks.pop(i)
         return
 
-    def checktask(self, taskname):
-        i = self._gettask(taskname)
-        status = self.__tasks[i].getstatus()
-        title = self.__tasks[i].gettitle()
-        due = self.__tasks[i].getdue()
-        desc = self.__tasks[i].getdescription()
+    def checkTask(self, taskname):
+        i = self._getTask(taskname)
+        status = self.__tasks[i].getStatus()
+        title = self.__tasks[i].getTitle()
+        due = self.__tasks[i].getDue()
+        desc = self.__tasks[i].getDescription()
 
         return (status, title, due, desc)
 
     def taskDone(self, taskname):
-        i = self._gettask(taskname)
+        i = self._getTask(taskname)
         self.__tasks[i].check()
 
-        print(f"{self.__tasks[i].gettitle()} is done")
+        print(f"{self.__tasks[i].getTitle()} is done")
 
     def taskUndone(self, taskname):
-        i = self._gettask(taskname)
+        i = self._getTask(taskname)
         self.__tasks[i].uncheck()
 
-        print(f"{self.__tasks[i].gettitle()} is not done")
+        print(f"{self.__tasks[i].getTitle()} is not done")
 
-    def setdesc(self, taskname, newdesc):
-        i = self._gettask(taskname)
-        self.__tasks[i].setdescription(newdesc)
+    def setDesc(self, taskname, newdesc):
+        i = self._getTask(taskname)
+        self.__tasks[i].setDescription(newdesc)
 
-    def settaskdue(self, taskname, date):
-        i = self._gettask(taskname)
-        self.__tasks[i].setdue(date)
+    def setTaskDue(self, taskname, date):
+        i = self._getTask(taskname)
+        self.__tasks[i].setDue(date)
 

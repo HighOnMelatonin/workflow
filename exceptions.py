@@ -1,5 +1,6 @@
 ##Exceptions for workflow
 
+
 class InvalidProjectName(Exception):
     def __str__(self):
         message = "Project does not exist"
@@ -34,15 +35,27 @@ class InvalidDate(Exception):
         return message
 
 
-class MethodMadness(Exception):
-    def __str__(self):
-        message = "No such method exist"
-        return message
-
-
 class InvalidType(Exception):
     def __str__(self):
         message = "You have requested for something that doesn't exist in our system right now"
+        return message
+
+
+class MethodMadness(Exception):
+    def __init__(self, errorType):
+        self.__message = "No such method exists"
+        if errorType == WrongSelection:
+            self.__message = WrongSelection().__str__()
+
+        self.__str__()
+
+    def __str__(self):
+        return self.__message
+
+
+class WrongSelection(Exception):
+    def __str__(self):
+        message = "There is no such method for the selected object"
         return message
 
 

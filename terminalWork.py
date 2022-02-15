@@ -354,13 +354,18 @@ class Running:
 class interface:
     '''
     This class deals with the user interface
+
+    Methods allowed in this class:
+    1. Viewing projects and tasks
+    2. Marking tasks as done
+    3. Checking project status
     '''
     def __init__(self):
         self.__background = Running()
         self.__active = None
 
 
-    ##Selection
+    ##Active
     def _changeActive(self, new, datatype):
         '''
         Changes the value of self.__active to the object selected
@@ -386,22 +391,14 @@ class interface:
         return self.__active
 
 
-    def _updateMain(self):
-        datatype = type(self.__active)
-        if datatype == _team.team:
-            name = self.__active.getName()
-
-        elif datatype == _project.project:
-            title = self.__active.getTitle()
-
-        else:
-            raise exceptions.InvalidType
-
-
     ##View
     ##Project
     def viewProject(self):
-        pass
+        if type(self.__active) == _project.project:
+            self.__active.display()
+
+        else:
+            raise exceptions.MethodMadness(exceptions.WrongSelection)
 
 
     def projectStatus(self):
@@ -409,6 +406,13 @@ class interface:
         print(f"{self.__active.getTitle()} is {status*100:.2f}% complete")
 
 
+    def getTitle(self):
+        return self.__active.getTitle()
+
+    ##Editing
+    #Tasks
+    def taskDone(self, taskname):
+        self.__active.checkTask(taskname)
 
 
     ##Commit
@@ -418,6 +422,11 @@ class interface:
 class admin(interface):
     '''
     This class deals with the user interface for admins, making more methods available
+    
+    Methods allowed in this class (on top of interface):
+    1. Adding new tasks and projects
+    2. Editing teams
+    3. Assigning teams to projects
     '''
     def __init__(self):
         super().__init__()
@@ -431,3 +440,7 @@ class regular(interface):
     def __init__(self):
         super().__init__()
 
+
+
+##Testing
+i = interface()

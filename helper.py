@@ -27,7 +27,7 @@ class overview:
         InvalidProjectName error if project cannot be found
         '''
         for i in range(len(self.__projects)):
-            if self.__projects[i].gettitle() == title:
+            if self.__projects[i].getTitle() == title:
                 return i
 
         raise exceptions.InvalidProjectName
@@ -39,14 +39,14 @@ class overview:
         '''
         teams = []
         for team in self.__teams:
-            teams.append(team.getname())
+            teams.append(team.getName())
 
         return teams
 
 
     def _getTeam(self, teamname):
         for i in range(len(self.__teams)):
-            if self.__teams[i].getname() == teamname:
+            if self.__teams[i].getName() == teamname:
                 return i
 
         raise exceptions.GhostTeam
@@ -59,8 +59,8 @@ class overview:
         DOES NOT CHECK IF THE DATE IS A VALID DATE, that is for datetime to do
         '''
         
-        one, two, three = type(date[0]) == int, type(date[1]) == int, type(date[2]) == int
-        if one and two and three:
+        year, month, day = type(date[0]) == int, type(date[1]) == int, type(date[2]) == int
+        if year and month and day:
             return
 
         else:
@@ -129,7 +129,7 @@ class overview:
         :type newtitle:     (str)
         '''
         i = self._getProject(title)
-        self.__projects[i].settitle(newtitle)
+        self.__projects[i].setTitle(newtitle)
 
 
     def addTask(self, title, taskname, date, desc):
@@ -148,7 +148,7 @@ class overview:
         '''
         self._checkDate()
         i = self._getProject(title)
-        self.__projects[i].addtask(taskname, date, desc)
+        self.__projects[i].addTask(taskname, date, desc)
 
     def removeTask(self, title, taskname):
         '''
@@ -159,7 +159,7 @@ class overview:
         :type taskname:     (str)
         '''
         i = self._getProject(title)
-        self.__projects[i].removetask(taskname)
+        self.__projects[i].removeTask(taskname)
 
     def editDesc(self, title, taskname, newdesc):
         '''
@@ -173,7 +173,7 @@ class overview:
         :type newdesc:      (str)
         '''
         i = self._getProject(title)
-        self.__projects[i].setdesc(taskname, newdesc)
+        self.__projects[i].setDesc(taskname, newdesc)
 
     def taskDone(self, title, taskname):
         i = self._getProject(title)
@@ -194,18 +194,18 @@ class overview:
         '''
         assigned = False
         for i in range(len(self.__projects)):
-            if self.__projects[i].gettitle() == title:
+            if self.__projects[i].getTitle() == title:
                 teamfound = False
                 for i in range(len(self.__teams)):
-                    if self.__teams[i].getname() == teamic:
-                        self.__teams[i].addproject(title)
+                    if self.__teams[i].getName() == teamic:
+                        self.__teams[i].addProject(title)
                         teamfound = True
                         break
                 
                 if not teamfound:
                     raise exceptions.GhostTeam
 
-                self.__projects[i].setteam(teamic)
+                self.__projects[i].setTeam(teamic)
                 assigned = True
                 break
 
@@ -223,7 +223,7 @@ class overview:
         '''
         self._checkDate()
         i = self._getProject(title)
-        self.__projects[i].setdue(date)
+        self.__projects[i].setDue(date)
 
 
     def setTaskDue(self, title, taskname, date):
@@ -239,7 +239,7 @@ class overview:
         '''
         self._checkDate()
         i = self._getProject(title)
-        self.__projects[i].settaskdue(taskname, date)
+        self.__projects[i].setTaskDue(taskname, date)
 
 
     ##team modifiers
@@ -249,7 +249,7 @@ class overview:
         :type teamname:     (str)
         '''
         this_team = _team.team()
-        this_team.setname(teamname)
+        this_team.setName(teamname)
         self.__teams.append(this_team)
     
     def removeTeam(self, teamname):
@@ -258,7 +258,7 @@ class overview:
         :type teamname:     (str)
         '''
         for i in range(len(self.__teams)):
-            if self.__teams[i].getname() == teamname:
+            if self.__teams[i].getName() == teamname:
                 self.__teams[i].pop(i)
                 return
 
@@ -273,7 +273,7 @@ class overview:
         :type teamname:     (str)
         '''
         i = self._getTeam(teamname)
-        self.__teams[i].setname(newname)
+        self.__teams[i].setName(newname)
         
 
     def allTeams(self):
@@ -291,7 +291,7 @@ class overview:
         :return:    (team)
         '''
         for i in range(len(self.__teams)):
-            if self.__teams[i].getname() == teamname:
+            if self.__teams[i].getName() == teamname:
                 return self.__teams[i]
 
         raise exceptions.GhostTeam
@@ -309,8 +309,8 @@ class overview:
         :type position:     (str)
         '''
         for i in range(len(self.__teams)):
-            if self.__teams[i].getname() == teamname:
-                self.__teams[i].addmember(membername, position)
+            if self.__teams[i].getName() == teamname:
+                self.__teams[i].addMember(membername, position)
                 return
 
         raise exceptions.GhostTeam
@@ -328,8 +328,8 @@ class overview:
         '''
         removed = False
         for i in range(len(self.__teams)):
-            if self.__teams[i].getname() == teamname:
-                self.__teams[i].removemember(membername, position)
+            if self.__teams[i].getName() == teamname:
+                self.__teams[i].removeMember(membername, position)
                 removed = True
                 break
 
@@ -337,7 +337,7 @@ class overview:
             raise exceptions.Ghost
         
         message = ''
-        if self.__teams[i].getmembers() == []:
+        if self.__teams[i].getMembers() == []:
             self.__teams.pop(i)
 
             message = 'All members have been removed, team will be deleted automatically'
@@ -346,7 +346,7 @@ class overview:
 
     def changePos(self, teamname, membername, position, newpos):
         for i in range(len(self.__teams)):
-            if self.__teams[i].getname() == teamname:
+            if self.__teams[i].getName() == teamname:
                 self.__teams[i].changePos(membername, position, newpos)
                 return
 

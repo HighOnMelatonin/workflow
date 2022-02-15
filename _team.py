@@ -13,25 +13,25 @@ class member:
         self.__tasks = tasks
 
 
-    def getname(self):
+    def getName(self):
         return self.__name
     
-    def setname(self, name):
+    def setName(self, name):
         self.__name = name
 
 
-    def getposition(self):
+    def getPosition(self):
         return self.__position
 
-    def setposition(self, position):
+    def setPostion(self, position):
         self.__position = position
 
     
-    def addtask(self, title, date, desc):
+    def addTask(self, title, date, desc):
         task = _project.task(title, date, desc)
         self.__tasks.append(task)
 
-    def removetask(self, title):
+    def removeTask(self, title):
         for i in range(len(self.__tasks)):
             if self.__tasks[i].gettitle() == title:
                 self.__tasks.pop(i)
@@ -55,22 +55,22 @@ class team:
         self.__teamname = str()
     
 
-    def getsize(self):
+    def getSize(self):
         return self.__size
 
 
-    def getmembers(self):
+    def getMembers(self):
         return self.__members
 
-    def addmember(self, name, position):
+    def addMember(self, name, position):
         newmember = member(name, position)
         self.__members.append(newmember)
         self.__size += 1
 
-    def removemember(self, name, position):
+    def removeMember(self, name, position):
 
         for i in range(self.__size):
-            if self.__members[i].getname() == name and self.__members[i].getposition() == position:
+            if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 self.__members.pop(i)
                 return
 
@@ -78,7 +78,7 @@ class team:
     
     def changePos(self, name, position, newpos):
         for i in range(len(self.__members)):
-            if self.__members[i].getname() == name and self.__members[i].getposition() == position:
+            if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 self.__members[i].setpos(newpos)
                 return
 
@@ -86,26 +86,26 @@ class team:
 
     def getMember(self, name, position):
         for i in range(len(self.__members)):
-            if self.__members[i].getname() == name and self.__members[i].getposition() == position:
+            if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 return self.__members[i]
 
         raise exceptions.Ghost
 
 
-    def getprojects(self):
+    def getProjects(self):
         return self.__projects
 
-    def addproject(self, title):
+    def addProject(self, title):
         self.__projects.append(title)
 
-    def removeproject(self, title):
+    def removeProject(self, title):
         self.projects.remove(title)
 
 
     def getName(self):
         return self.__teamname
 
-    def setname(self, teamname):
+    def setName(self, teamname):
         self.__teamname = teamname
 
 
