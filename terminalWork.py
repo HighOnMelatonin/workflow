@@ -13,8 +13,10 @@ import json
 import pickle
 import exceptions
 import os
+import sqlite3
 import _team
 import _project
+from getpass import getpass
 
 
 class Running:
@@ -430,6 +432,63 @@ class admin(interface):
     '''
     def __init__(self):
         super().__init__()
+
+
+    ##Private methods
+    def _checkAdmin(self, name, password):
+        db = sqlite3.connect('admins.db')
+        cursor = db.cursor()
+        allAdmin = cursor.fetchall()
+        if name in allAdmin:
+            index = allAdmin.index(name)
+            ##Check if password entered is correct
+
+
+    def _encode(self, password):
+        encoded = ''
+        for char in password:
+            newchar = str(ord(char))
+            encoded += newchar.ljust(3, '0')
+
+        return encoded
+
+    def _decode(self, encoded):
+        password = ''
+        for i in range(len(encoded), step = 3):
+            char = chr(int(encoded[i: i + 3]))
+            password += char
+
+        return password
+
+    
+
+    ##Validate admin
+    def validate(self):
+        name = str(input("Name: "))
+        password = getpass()
+
+    ##Add new
+    ##Project
+    def addProject(self, title = None, date = None, teamic = None, tasks = []):
+        '''
+        Creates a new project, param title must be filled
+
+        :param title:   Project title
+        Ltype title:    (str)
+
+        :param date:    Date of completion
+        :type date:     Tuple(int, int, int)
+
+        :param teamic:  Team in charge of the project
+        :type teamic:   (str)
+
+        :param tasks:   Subtasks to be completed for the project
+        :type tasks:    list(task)
+        '''
+        if not title:
+            title = str(input("Project title: "))
+        
+        self.__active.addProject(title, date, teamic, tasks)
 
 
 

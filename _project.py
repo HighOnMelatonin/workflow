@@ -99,7 +99,10 @@ class project:
 
             if task.getStatus():
                 done += 1
-
+        
+        if total == 0:
+            raise exceptions.EmptyProject
+        
         return (done/total)
     
 

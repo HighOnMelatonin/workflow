@@ -75,7 +75,7 @@ class overview:
         :param title:   The title of the project
         :type title:    (str)
 
-        :param date:    The project's completion date in YYYY/MM/DD format
+        :param date:    The project's completion date in YYYY/MM/DD format, default value is 1/1/1
         :type date:     tuple(int, int, int)
 
         :param teamic:  The team in charge of the project

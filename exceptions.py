@@ -60,4 +60,10 @@ class WrongSelection(Exception):
 
 
 
+class EmptyProject(Exception):
+    def __str__(self):
+        message = "There are no tasks in this project"
+        return message
+
+
 
