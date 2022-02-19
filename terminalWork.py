@@ -501,5 +501,15 @@ class regular(interface):
 
 
 
+class run():
+    '''
+    This class handles the running of the program
+    '''
+    def __init__(self):
+        self.__reg = regular()
+        self.__admin = admin()
+
+
+
 ##Testing
 i = interface()
