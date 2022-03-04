@@ -42,7 +42,7 @@ class InvalidType(Exception):
 
 
 class MethodMadness(Exception):
-    def __init__(self, errorType):
+    def __init__(self, errorType = None):
         self.__message = "No such method exists"
         if errorType == WrongSelection:
             self.__message = WrongSelection().__str__()
@@ -64,6 +64,14 @@ class EmptyProject(Exception):
     def __str__(self):
         message = "There are no tasks in this project"
         return message
+
+
+
+class Clone(Exception):
+    def __str__(self):
+        message = 'Another user has the same username'
+        return message
+
 
 
 
