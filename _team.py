@@ -4,9 +4,6 @@ import _project
 import exceptions
 
 class member:
-    def __str__(self):
-        return str((self.__name, self.__position, self.__tasks))
-
     def __init__(self, name = str(), position = str(), tasks = list()):
         self.__name = name
         self.__position = position
@@ -47,7 +44,10 @@ class team:
 
     def __init__(self):
         '''
-        
+        self.__size stores the size of the team
+        self.__members stores a list of all member objects in the team
+        self.__projects stores a list of the titles of the projects the team is in charge of
+        self.__teamname stores the name of the team
         '''
         self.__size = int()
         self.__members = list()
@@ -60,6 +60,9 @@ class team:
 
 
     def getMembers(self):
+        '''
+        Returns a list of all member objects
+        '''
         return self.__members
 
     def addMember(self, name, position):
@@ -109,4 +112,17 @@ class team:
         self.__teamname = teamname
 
 
+    def display(self):
+        print(f"""{self.getName()}:
 
+        Projects:
+        {self.__projects}
+        {'='*82}
+        Members:
+        """)
+        for member in self.__members:
+            print(f"{member.getName():<30}{member.getPosition()}")
+
+t = team()
+team.addMember('Hello','Kenobi','general')
+team.display()
