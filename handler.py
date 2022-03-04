@@ -16,6 +16,11 @@ class handler:
     Modifications to the objects in the class do not reflect in the .pkl file immediately, user needs to commit before the changes are reflected in the file
     '''
     def __init__(self):
+        '''
+        Loads saved data from .pkl to self.__master
+
+        If required data files do not exist, the initialisation will create them
+        '''
         if not os.path.isdir('misc'):
             os.mkdir('misc/')
 
@@ -163,7 +168,7 @@ class handler:
         :param projectname: Name of the project
         :type projectname:  (str)
 
-        :return:            
+        :return:            (project)
         '''
         filename = 'misc/projects/' + projectname + '.json'
         self._checkfile(filename)
@@ -368,12 +373,9 @@ class handler:
         member = t.getMember(name, position)
         return member
 
-    def allMembers(self, teamname):
-        t = self.__master.allTeams()
-        members = t.getmembers
-        return members
+    def allMembers(self):
+        return self.__master.allMembers()
 
-    
 
     ##Commit
     def commit(self):
