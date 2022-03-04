@@ -1,12 +1,10 @@
-from getpass import getpass
 
 
+date = str(input("Date (YYYY/MM/DD): "))
 
-password = getpass()
+date = date.split('/')
 
-raw = open('test.txt','w')
-print(password, file = raw)
-raw.close()
+for i in range(len(date)):
+    date[i] = int(date[i])
 
-
-    
+print(tuple(date))
