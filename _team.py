@@ -121,7 +121,7 @@ class team:
         Members:
         """)
         for member in self.__members:
-            print(f"{member.getName():<30}{member.getPosition()}")
+            print(f"{member.getName():<30}{member.getPosition():>20}")
 
 t = team()
 team.addMember('Hello','Kenobi','general')
