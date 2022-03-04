@@ -8,349 +8,12 @@ Should have an interface for admins and one for regular team members so that mem
 
 '''
 
-import helper
-import json
-import pickle
 import exceptions
-import os
 import sqlite3
 import _team
 import _project
 from getpass import getpass
-
-
-class Running:
-    '''
-    This class handles the pkl files that save all the instances and modifications made to the objects
-    
-    Modifications to the objects in the class do not reflect in the .pkl file immediately, user needs to commit before the changes are reflected in the file
-    '''
-    def __init__(self):
-        if not os.path.isdir('misc'):
-            os.mkdir('misc/')
-
-        if not os.path.isdir('misc/projects'):
-            os.mkdir('misc/projects/')
-            if not os.path.isfile('misc/projects/projects.json'):
-                self._makefile('misc/projects/projects.json')
-
-        if not os.path.isdir('misc/teams'):
-            os.mkdir('misc/teams/')
-            if not os.path.isfile('misc/teams/teams.json'):
-                self._makefile('misc/teams/teams.json')
-
-        if not self._checkFile('misc/masterLog.pkl'):
-            self._makefile('misc/masterLog.pkl')
-
-            file = open('misc/masterLog.pkl','wb')
-            self.__master = helper.overview()
-            pickle.dump(self.__master, file)
-            file.close()
-        
-        file = open('misc/masterLog.pkl','wb')
-        self.__master = pickle.load(file)
-        file.close()
-
-
-    ##Private methods
-
-    def _makefile(self, filename):
-        '''
-        Creates a new file with the filename specified
-
-        :param filename:    The name of the file, including the file path
-        :type filename:     (str)
-
-        Example:
-        :filename:  misc/projects/Webstore project.pkl
-        '''
-        newfile = open(filename, 'w')
-        newfile.close()
-
-    def _checkFile(self, filename, selectType):
-        '''
-        _checkfile only checks if the file exists, it doesn't create a file, there is no return value file should be a .pkl file
-
-        :param selectType:  Determines whether to raise invalid project or team error
-        :type selectType:   (str)
-
-        :param filename:    Name of the file to check, including the directory
-        :type filename:     (str)
-        '''
-        if not os.path.isfile(filename):
-            if selectType == 'p':
-                raise exceptions.InvalidProjectName
-
-            elif selectType == 't':
-                raise exceptions.GhostTeam
-
-            else:
-                return False
-        
-        else:
-            return True
-
-    def _saveFile(self, filename, data):
-        '''
-        Saves the new data to the file specified
-
-        :param filename:    Name of the file, with .pkl extension
-        :type filename:     (str)
-
-        :param data:        The data to be dumped to the file
-        :type data:         (team) or (project)       
-        '''
-        output = open(filename, 'wb')
-        pickle.dump(data, output)
-        output.close()
-
-
-    def _getMaster(self):
-        return self.__master
-
-
-    def _getTeams(self):
-        raw = open('misc/teams/teams.json', 'r')
-        output = json.load(raw)
-        raw.close()
-        return output
-
-    def _addTeam(self, currTeam):
-        '''
-        Saves the team name of the new team to a json file
-
-        :param currTeam:    The team object to be committed
-        :type currTeam:     (team)
-        '''
-        raw = open('misc/teams/teams.json', 'r+')
-        output = json.load(raw)
-        newteam = {'teamname':currTeam.getname()}
-        output.append(newteam)
-        raw.seek(0)
-        json.dump(output, raw, indent = 4)
-        raw.close()
-
-        ##Save the instance of the currTeam object
-        filename = 'misc/teams/' + currTeam.getname() + '.pkl'
-        newfile = open(filename, 'w')
-        newfile.close()
-        self._saveFile(filename, currTeam)
-
-
-    def _addProject(self, currProject):
-        '''
-        Saves the project title of the new project to a json file
-
-        :param currProject: The project object to be committed
-        :type currProject:  (project)
-        '''
-        raw = open('mics/projects/projects.json', 'r+')
-        output = json.load(raw)
-        newproject = {'title':currProject.gettitle()}
-        output.append(newproject)
-        raw.seek(0)
-        json.dump(output, raw, indent = 4)
-        raw.close()
-    
-    def _getProjects(self):
-        raw = open('misc/projects/projects.json', 'r')
-        output = json.load(raw)
-        raw.close()
-        return output
-
-
-
-    ##Selecting
-    def selectProject(self, projectname):
-        '''
-        Select an existing project to carry out modifications, so the user doesn't have to enter the project name repeatedly
-
-        :param projectname: Name of the project
-        :type projectname:  (str)
-        '''
-        filename = 'misc/projects/' + projectname + '.json'
-        self._checkfile(filename)
-        super()._changeSelected(projectname, 'p')
-
-
-
-    def selectTeam(self, teamname = str()):
-        '''
-        Select an existing team to carry out edits, so the user doesn't have to repeatedly enter the team name
-
-        :param teamname:    Name of the team
-        :type teamname:     (str)
-        '''
-
-        filename = 'misc/teams/' + teamname + '.json'
-        self._checkfile(filename)
-        super()._changeSelected(teamname, 't')
-
-    
-
-    ##Adding new
-    ##Project
-    def addproject(self, title = None, date = None, teamic = None, tasks = None):
-        '''
-        Creates a new project if the project does not exist
-
-        :param title:       Title of the project
-        :type title:        (str)
-
-        :param date:        Date of completion in YYYY/MM/DD format
-        :type date:         Tuple(int, int, int)
-
-        :param teamic:      Team in charge of the project
-        :type teamic:       (str)
-
-        :param tasks:       Subtasks for the project
-        :type tasks:        List(task)
-        '''
-        filename = 'misc/project/' + title + '.pkl'
-        if self._checkfile(filename, 'p'):
-            print(f"Project {title} already exists, to select it use the \"selectProject\" method instead")
-            return
-
-        self.__master.addproject(title, date, teamic, tasks)
-        self._saveFile(filename, self.__master._getproject(title))
-
-
-    ##Task
-    def addtask(self, title, taskname, date, desc):
-        filename = 'misc/projects/' + title + '.pkl'
-        self._checkFile(filename)
-        self.__master.addTask(title, taskname, date, desc)
-        
-
-
-    ##Team
-    def addteam(self, teamname):
-        '''
-        Creates a new team if the team does not exist
-
-        :param teamname:    The name of the team
-        :type teamname:     (str)
-        '''
-        filename = 'misc/teams/' + teamname + '.pkl'
-        if self._checkFile(filename, 't'):
-            print(f"Team {teamname} already exists, to select it use the \"selectTeam\" method instead")
-            return
-
-        self.__master.addteam(teamname)
-        self._saveFile(filename, self.__master._getteam(teamname))
-
-    
-    ##Member
-    def addmember(self, teamname, name, postion):
-        self.__master.addMember(teamname, name, postion)
-    
-
-    ##Modifying
-    ##Project
-    def changeProName(self, title, newtitle):
-        self.__master.changeProName(title, newtitle)
-    
-    def setProdue(self, title, date):
-        '''
-        This method does not save the changes made to the instance in the pkl file yet
-
-        :param title:   Project title
-        :type title:    (str)
-
-        :param date:    Project completion date, in YYYY/MM/DD format
-        :type date:     Tuple(int, int, int)
-        '''
-        self.__master.setProDue(title, date)
-
-    def assignProject(self, teamic, title):
-        self.__master.assignProject(teamic, title)
-
-    def removeProject(self, title):
-        self.__master.removeProject(title)
-
-
-    ##Tasks
-    def setTaskDue(self, title, taskname, date):
-        self.__master.setTaskDue(title, taskname, date)
-
-    def removeTask(self, title, taskname):
-        self.__master.removeTask(title, taskname)
-
-    def editDesc(self, title, taskname, newdesc):
-        self.__master.editDesc(title, taskname, newdesc)
-
-    def taskDone(self, title, taskname):
-        self.__master.taskDone(title, taskname)
-
-    def taskUndone(self, title, taskname):
-        self.__master.taskUndone(title, taskname)
-    
-    ##Team
-    def removeTeam(self, teamname):
-        self.__master.removeTeam(teamname)
-
-    def changeTeamName(self, teamname, newname):
-        self.__master.changeTeamName(teamname, newname)
-
-    
-    ##Member
-    def removeMember(self, teamname, membername, position):
-        self.__master.removeMember(teamname, membername, position)
-
-    def changePos(self, teamname, membername, position, newpos):
-        self.__master.changePos(self, teamname, membername, position, newpos)
-
-
-    ##Display
-    ##Projects
-    def getProject(self, title):
-        '''
-        :return:    (project)
-        '''
-        return self.__master.viewProject(title)
-
-    def allProjects(self):
-        return self.__master.allProjects()
-
-    
-    ##Tasks
-    def getTask(self, title, taskname):
-        p = self.__master.viewProject(title)
-        task = p.checktask(taskname)
-        return task
-
-    def allTasks(self, title):
-        p = self.__master.viewProject(title)
-        tasks = p.gettasks()
-        return tasks
-
-
-    ##Teams
-    def getTeam(self, teamname):
-        return self.__master.viewTeam(teamname)
-
-    def allTeams(self):
-        return self.__master.allTeams()
-
-    
-    ##Members
-    def getMember(self, teamname, name, position):
-        t = self.__master.viewTeam(teamname)
-        member = t.getMember(name, position)
-        return member
-
-    def allMembers(self, teamname):
-        t = self.__master.allTeams()
-        members = t.getmembers
-        return members
-
-    
-
-    ##Commit
-    def commit(self):
-        self._saveFile('misc/masterLog.pkl', self.__master)
-
-
+import handler
 
 
 class interface:
@@ -361,9 +24,14 @@ class interface:
     1. Viewing projects and tasks
     2. Marking tasks as done
     3. Checking project status
+
+    self.__active is the project or teamname that is currently being modified
+    self.__background is everthing else, all the other projects and teams
+
+    separating self.__active from self.__background so that the user can modify the same project or team without having to repeatedly input the team/project name
     '''
     def __init__(self):
-        self.__background = Running()
+        self.__background = handler.handler()
         self.__active = None
 
 
@@ -380,10 +48,10 @@ class interface:
 
         :return:            None
         '''
-        if datatype == 'p':
+        if datatype == 'p' or datatype == 'project':
             self.__active = self.__background.getProject(new)
 
-        elif datatype == 't':
+        elif datatype == 't' or datatype == 'team':
             self.__active = self.__background.getTeam(new)
 
         else:
@@ -393,23 +61,133 @@ class interface:
         return self.__active
 
 
+    ##Get input
+    def _getDate(self) -> tuple:
+        date = str(input("Date (YYYY/MM/DD): "))
+
+        date = date.split('/')
+
+        for i in range(len(date)):
+            date[i] = int(date[i])
+
+        return date
+
+    def _getTask(self):
+        '''
+        Shows a list of all the tasks and returns user's choice
+        '''
+        tasks = self.__background.allTasks()
+        print(tasks)
+        taskname = str(input("Task name: "))
+        return taskname
+
+
+    ##Selection
+    def selection(self, datatype = None, name = None) -> None:
+        '''
+        Change the active object being modified
+
+        :param datatype:    Selection of a project or a team
+        :type datatype:     (str)
+
+        :param name:        Project title or team name
+        :type name:         (str)
+
+        :return:            None
+        '''
+        if not datatype:
+            datatype = str(input("Do you want to modify a project or a team?\n"))
+
+        if datatype == 'project' and not name:
+            projects = self.__background.allProjects()
+            print("List of projects: ")
+            for project in projects:
+                print(project.getTitle())
+
+            name = str(input("Selection: "))
+
+        elif datatype == 'team' and not name:
+            teams = self.__background.allTeams()
+            print("List of teams: ")
+            for team in teams:
+                print(team.getName())
+
+        else:
+            raise exceptions.InvalidType
+
+        #interface._changeActive already catches invalid names
+        self._changeActive(name, datatype)
+
+
     ##View
-    ##Project
-    def viewProject(self):
+    def view(self):
+        '''
+        Displays details of a project or a team, depending on what has been selected
+        '''
         if type(self.__active) == _project.project:
-            self.__active.display()
+            project = self.__background.getProject(self.__active.getTitle())
+            project.display()
+
+        elif type(self.__active) == _team.team:
+            team = self.__background.getTeam(self.__active.getName())
+            
 
         else:
             raise exceptions.MethodMadness(exceptions.WrongSelection)
 
 
+    def viewAll(self):
+        '''
+        View all projects or teams
+        '''
+        if type(self.__active) == _team.team:
+            teams = self.__background.allTeams()
+            for team in teams:
+                team.display()
+
+        elif type(self.__active) == _project.project:
+            projects = self.__background.allProjects()
+            for project in projects:
+                project.display()
+
+        else:
+            raise exceptions.InvalidType
+
+
+    ##Project
     def projectStatus(self):
         status = self.__active.getStatus()
         print(f"{self.__active.getTitle()} is {status*100:.2f}% complete")
 
-
     def getTitle(self):
+        '''
+        Return project title for the selected project
+        '''
         return self.__active.getTitle()
+
+
+    ##Team
+    def getName(self):
+        '''
+        Return team name for the selected team
+        '''
+        return self.__active.getName()
+
+
+    ##Member
+    def viewMembers(self) -> None:
+        '''
+        View all members (without team names)
+        '''
+        if type(self.__active) == _project.project:
+            raise exceptions.InvalidType
+
+        else:
+            members = self.__background.allMembers()
+            print(f"{'Name':<30}{'Position':>20}")
+            for member in members:
+                print(f"{member.getName():<30}{member.getPosition():>20}")
+
 
     ##Editing
     #Tasks
@@ -421,6 +199,7 @@ class interface:
     def commit(self):
         self.__background.commit()
 
+
 class admin(interface):
     '''
     This class deals with the user interface for admins, making more methods available
@@ -429,6 +208,8 @@ class admin(interface):
     1. Adding new tasks and projects
     2. Editing teams
     3. Assigning teams to projects
+    4. Adding new admins
+    5. Making new teams
     '''
     def __init__(self):
         super().__init__()
@@ -436,12 +217,32 @@ class admin(interface):
 
     ##Private methods
     def _checkAdmin(self, name, password):
-        db = sqlite3.connect('admins.db')
-        cursor = db.cursor()
+        db = sqlite3.connect('misc/data/admins.db')
+        cursor = db.execute("SELECT * FROM ACCOUNTS")
         allAdmin = cursor.fetchall()
-        if name in allAdmin:
-            index = allAdmin.index(name)
-            ##Check if password entered is correct
+        if (name, password) in allAdmin:
+            return True
+
+        else:
+            return False
+
+    def _addAdmin(self, name, password):
+        db = sqlite3.connect('misc/data/admins.db')
+        cursor = db.execute('SELECT * FROM ACCOUNTS')
+        for account in cursor:
+            if account[0] == name:
+                if self._checkAdmin(name, password):
+                    print("Admin account with the same name exists, attempting to sign you in...")
+                    return self._checkAdmin(name, password)
+
+                else:
+                    raise exceptions.Clone
+
+        else:
+            db.execute(f"""INSERT INTO ACCOUNTS
+            VALUES({name}, {password})""")
+            db.commit()
+            print("New account added")
 
 
     def _encode(self, password):
@@ -460,12 +261,17 @@ class admin(interface):
 
         return password
 
-    
 
     ##Validate admin
     def validate(self):
+        '''
+        Checks if the user is an admin
+        '''
         name = str(input("Name: "))
-        password = getpass()
+        password = getpass('Password (hidden): ')
+
+        return self._checkAdmin(name, self._encode(password))
+
 
     ##Add new
     ##Project
@@ -474,7 +280,7 @@ class admin(interface):
         Creates a new project, param title must be filled
 
         :param title:   Project title
-        Ltype title:    (str)
+        :type title:    (str)
 
         :param date:    Date of completion
         :type date:     Tuple(int, int, int)
@@ -488,28 +294,385 @@ class admin(interface):
         if not title:
             title = str(input("Project title: "))
         
-        self.__active.addProject(title, date, teamic, tasks)
+        self.__background.addProject(title, date, teamic, tasks)
+
+
+    ##Admin
+    def addAdmin(self):
+        '''
+        Only an admin can add a new admin
+        '''
+        name = str(input("Name (for logging in): "))
+        pass1 = getpass('Password (hidden): ')
+        pass2 = getpass('Re-enter password (hidden): ')
+
+        if pass1 != pass2:
+            self.addAdmin()
+
+        else:
+            self._addAdmin(name, pass1)
+
+    
+    ##Team
+    def addTeam(self, teamname = None, members = []):
+        '''
+        Make a new team
+
+
+        '''
+        if not teamname:
+            teamname = str(input("Team name: "))
+
+        self.__background.addTeam(teamname)
+
+        for member in members:
+            self.__background.addMember(teamname, member[0], member[1])
+
+
+    ##Task
+    def addTask(self, title = None, taskname = None, date = None, desc = None):
+        '''
+        Add a new task to the project
+
+        :param title:      Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task to be added
+        :type taskname:     (str)
+
+        :param date:        Due date for the task in YYYY/MM/DD format
+        :type date:         tuple(int, int, int)
+
+        :param desc:        Description of the task
+        :type desc:         (str)
+        '''
+        if not title:
+            title = str(input("Project title: "))
+
+        if not taskname:
+            taskname = str(input("Task name: "))
+
+        if not date:
+            date = str(input("Date (YYYY/MM/DD): "))
+
+            date = date.split('/')
+
+            for i in range(len(date)):
+                date[i] = int(date[i])
+
+        self.__background.addTask(self.__active.getTitle(), taskname, tuple(date), desc)
+
+
+    ##Member
+    def addMember(self, name = None, position = None) -> None:
+        '''
+        :param name:        Name of the new member
+        :type name:         (str)
+
+        :param position:    New member's position
+        :type position:     (str)
+        '''
+        if not name:
+            name = str(input("Name: "))
+
+        if not position:
+            position = str((input("Position: ")))
+        
+        self.__background.addMember(self.__active.getName(), name, position)
+
+
+    ##Modifications
+    ##Project
+    def changeProName(self, newtitle = None) -> None:
+        '''
+        :param newtitle:    New project title
+        :type newtitle:     (str)
+        '''
+        if not newtitle:
+            newtitle = str(input("New title: "))
+
+        self.__background.changeProName(self.__active.getTitle(), newtitle)
+
+    def changeProDue(self, date = None) -> None:
+        '''
+        :param date:    Project completion date, in YYYY/MM/DD/ format
+        :type date:     Tuple(int, int, int)
+        '''
+        if not date:
+            date = self._getDate()
+
+        self.__background.setProdue(self.__active.getTitle(), tuple(date))
+
+    def assignProject(self, teamic = None) -> None:
+        '''
+        Assigns the project to a team
+
+        :param teamic:  The name of the team in charge
+        :type teamic:   (str)
+        '''
+        if not teamic:
+            teams = self.__background.allTeams()
+            print(teams)
+            teamic = str(input("Team in-charge: "))
+
+        self.__background.assignProject(teamic, self.__active.getTitle())
+
+    def removeProject(self):
+        '''
+        Removes the current project
+        '''
+        self.__background.removeProject(self.__active.getTitle())
+
+
+    ##Tasks
+    def setTaskDue(self, taskname = None, date = None) -> None:
+        if not taskname:
+            taskname = self._getTask()
+
+        if not date:
+            date = self._getDate()
+        
+        self.__background.setTaskDue(self.__active.getTitle(), taskname, date)
+    
+    def removeTask(self, taskname):
+        if not taskname:
+            taskname = self._getTask()
+
+        self.__background.removeTask(self.__active.getTitle(), taskname)
+
+    def editDesc(self, taskname = None, newdesc = None):
+        if not taskname:
+            taskname = self._getTask()
+
+        if not newdesc:
+            newdesc = str(input("New description: "))
+
+        self.__background.editDesc(self.__active.getTitle(), taskname, newdesc)
+
+
+    ##Teams
+    def removeTeam(self):
+        '''
+        Removes the selected team
+        '''
+        self.__background.removeTeam(self.__active.getName())
+
+    def changeTeamName(self, newname = None):
+        '''
+        :param newname: The new team name
+        :type newname:  (str)
+        '''
+        if not newname:
+            newname = str(input("New team name: "))
+
+        self.__background.changeTeamName(self.__active.getName(), newname)
+
+
+    ##Member
+    def removeMember(self, membername, position):
+        '''
+        Removes a member from the team
+
+        :param membername:  Name of the member to be removed
+        :type membername:   (str)
+
+        :param position:    Member's position, in case there are members in the team with the same name
+        :type position:     (str)
+        '''
+        if not membername:
+            membername = str(input("Member name: "))
+
+        if not position:
+            position = str(input("Member's position: "))
+
+        self.__background.removeMember(self.__active.getName(), membername, position)
+
+    def changePos(self, membername, position, newpos):
+        '''
+        :param membername:  Name of the member
+        :type membername:   (str)
+
+        :param position:    Member's position
+        :type position:     (str)
+
+        :param newpos:      New position
+        :type newpos:       (str)
+        '''
+        if not membername:
+            membername = str(input("Member name: "))
+
+        if not position:
+            position = str(input("Member's position: "))
+
+        if not newpos:
+            newpos = str(input("Member's new position: "))
+
+        self.__background.changePos(self.__active.getName, membername, position, newpos)
+
+
+    ##Help message
+    def getHelp(self):
+        mainMessage = """
+        WorkFlow terminal
+        The command line app that helps streamline your workflow
+        
+        Commands:
+        help        Returns this message when executed
+
+        commit      Saves changes made to the files
+
+        exit        Exits the program without saving changes
+
+        login       Login to your admin account for privileges
+
+        start       Starts the program as a regular user with no privileges
+
+        select      Select a project or team to view or modify
+                    > select <project/team> <project title/team name>
+
+
+        Admin commands:
+        addAdmin    Adds a new admin to the database, only existing admins can add new admins
+
+        addMember   Adds a new member to the team selected
+        """
+        return mainMessage
+
+        
 
 
 
 class regular(interface):
     '''
     This class deals with the user interface for regular users, restricting access to methods
+    
+    
     '''
     def __init__(self):
         super().__init__()
 
 
+    def taskUndone(self, taskname):
+        '''
+        Mark a task as not done
 
-class run():
+        :param taskname:    Name of the task to uncheck
+        :type taskname:     (str)
+        '''
+        if not taskname:
+            self.__active.uncheckTask(taskname)
+
+
+    ##Help message
+    def getHelp(self):
+        mainMessage = """
+        WorkFlow terminal
+        The command line app that helps streamline your workflow
+        
+        Commands:
+        help        Returns this message when executed
+
+        commit      Saves changes made to the files
+
+        exit        Exits the program without saving changes
+
+        login       Login to your admin account for privileges
+
+        start       Starts the program as a regular user with no privileges
+
+        select      Select a project or team to view or modify
+                    > select <project/team> <project title/team name>
+        """
+        return mainMessage
+
+
+
+class terminalWork():
     '''
-    This class handles the running of the program
+    This class handles the running of the program and is the first thing the user will interact with
     '''
     def __init__(self):
         self.__reg = regular()
         self.__admin = admin()
+        self.__commands = ['help', 'login', 'start', 'select', 'list', 'commit']
+        self.__adCommands = ['addMember', 'addAdmin']
+
+
+    def _adminRun(self):
+        '''
+        Access admin only commands
+        '''
+        prompt = "(Admin)> "
+        command = str(input(prompt))
+        while command != 'exit':
+            if command == 'help':
+                print(self.__admin.getHelp())
+                command = str(input(prompt))
+                continue
+            
+            if command in self.__adCommands:
+                print("You're in admin commands")
+
+            elif command[:6] == 'select':
+                try:
+                    space = command[7:].index(' ')
+                    name = command[space:]
+
+                except:
+                    space = name = None
+                
+                datatype = command[7: space]
+                self.__admin.selection(datatype, name)
+
+            elif command in self.__commands:
+                print("That's a regular command")
+
+            else:
+                print(f"{command} is invalid, type 'help' to get a list of valid commands")
+
+            command = str(input(prompt))
+
+
+    def run(self):
+        print("="*10, "WorkFlow", "="*10)
+        prompt = "> "
+        command = str(input(prompt))
+        while command != 'exit':
+            if command in self.__commands:
+                if command == 'help':
+                    print(self.__reg.getHelp())
+
+                elif command == 'start':
+                    continue
+
+                elif command == 'login':
+                    self.__admin.validate()
+                    self._adminRun()
+                    break
+
+                elif command[:6] == 'select':
+                    try:
+                        space = command[7:].index(' ')
+                        name = command[space:]
+
+                    except:
+                        space = name = None
+                    
+                    datatype = command[7: space]
+                    self.__reg.selection(datatype, name)
+
+                else:
+                    print("Hello")
+
+            else:
+                print(f"{command} is an invalid command, type 'help' to get a list of commands")
+
+            command = str(input(prompt))
+
 
 
 
 ##Testing
-i = interface()
+app = terminalWork()
+if __name__ == '__main__':
+    app.run()
