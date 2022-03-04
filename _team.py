@@ -55,23 +55,33 @@ class team:
         self.__teamname = str()
     
 
-    def getSize(self):
+    def getSize(self) -> int:
         return self.__size
 
 
-    def getMembers(self):
+    def getMembers(self) -> list:
         '''
         Returns a list of all member objects
+
+        :return:    List(member)
         '''
         return self.__members
 
-    def addMember(self, name, position):
+    def addMember(self, name, position) -> None:
         newmember = member(name, position)
         self.__members.append(newmember)
         self.__size += 1
 
-    def removeMember(self, name, position):
+    def removeMember(self, name, position) -> None:
+        '''
+        Removes member, raises exceptions.Ghost if member cannot be found, no return value
+        
+        :param name:    Name of the member to be removed
+        :type name:     (str)
 
+        :param postion: Position of the member, in case there's another member with the same name
+        :type position: (str)
+        '''
         for i in range(self.__size):
             if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 self.__members.pop(i)
@@ -79,7 +89,7 @@ class team:
 
         raise exceptions.Ghost
     
-    def changePos(self, name, position, newpos):
+    def changePos(self, name, position, newpos) -> None:
         for i in range(len(self.__members)):
             if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 self.__members[i].setpos(newpos)
@@ -88,6 +98,16 @@ class team:
         raise exceptions.Ghost
 
     def getMember(self, name, position):
+        '''
+        Returns the member object of the member with the specified name and position
+        Raises exceptions.Ghost if member cannot be found
+
+        :param name:        Name of member
+        :type name:         (str)
+
+        :param position:    Member's position
+        :type position:     (str)
+        '''
         for i in range(len(self.__members)):
             if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 return self.__members[i]
@@ -95,24 +115,45 @@ class team:
         raise exceptions.Ghost
 
 
-    def getProjects(self):
+    def getProjects(self) -> list:
+        '''
+        Returns a list of projects
+
+        :return:    List(project)
+        '''
         return self.__projects
 
-    def addProject(self, title):
+    def addProject(self, title) -> None:
         self.__projects.append(title)
 
-    def removeProject(self, title):
+    def removeProject(self, title) -> None:
         self.projects.remove(title)
 
 
-    def getName(self):
+    def getName(self) -> str:
+        '''
+        Returns the team name
+
+        :return:    (str)
+        '''
         return self.__teamname
 
-    def setName(self, teamname):
+    def setName(self, teamname) -> None:
+        '''
+        Changes the team name
+
+        :param teamname:    The new name
+        :type teamname:     (str)
+        '''
         self.__teamname = teamname
 
 
-    def display(self):
+    def display(self) -> None:
+        '''
+        Prints the details of the team
+
+        :return: None
+        '''
         print(f"""{self.getName()}:
 
         Projects:
@@ -123,6 +164,3 @@ class team:
         for member in self.__members:
             print(f"{member.getName():<30}{member.getPosition():>20}")
 
-t = team()
-team.addMember('Hello','Kenobi','general')
-team.display()
