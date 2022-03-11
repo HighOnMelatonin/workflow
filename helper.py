@@ -14,7 +14,7 @@ class overview:
     '''
     This class combines the project and team object, as one more layer of abstraction before being saved as a pkl file
     '''
-    def __init__(self, teams = list(), projects = list()) -> None:
+    def __init__(self, teams = [], projects = []) -> None:
         '''
         :param teams:       A list of all teams
         :type teams:        List(team)
@@ -22,17 +22,22 @@ class overview:
         :param projects:    A list of all projects
         :type project:      List(project)
         '''
-        self.__teams = teams
-        self.__projects = projects
+        self.teams = teams
+        self.projects = projects
 
     ##Private methods
     def _getProject(self, title) -> int:
         '''
         Returns the index of the project in the list of projects, raises
         InvalidProjectName error if project cannot be found
+
+        :param title:   Title of the project
+        :type title:    (str)
+
+        :return:        (int)
         '''
-        for i in range(len(self.__projects)):
-            if self.__projects[i].getTitle() == title:
+        for i in range(len(self.projects)):
+            if self.projects[i].getTitle() == title:
                 return i
 
         raise exceptions.InvalidProjectName
@@ -41,9 +46,11 @@ class overview:
     def _getTeams(self) -> list:
         '''
         Returns a list of all team names
+
+        :return:    List(team)
         '''
         teams = []
-        for team in self.__teams:
+        for team in self.teams:
             teams.append(team.getName())
 
         return teams
@@ -51,7 +58,7 @@ class overview:
 
     def _getTeam(self, teamname) -> int:
         '''
-        Returns the index of the team in self.__teams
+        Returns the index of the team in self.teams
         If team cannot be found, raises exceptions.GhostTeam
 
         :param teamname:    Name of the team to find
@@ -59,8 +66,8 @@ class overview:
 
         :return:            (int) or (exceptions.GhostTeam)
         '''
-        for i in range(len(self.__teams)):
-            if self.__teams[i].getName() == teamname:
+        for i in range(len(self.teams)):
+            if self.teams[i].getName() == teamname:
                 return i
 
         raise exceptions.GhostTeam
@@ -71,6 +78,11 @@ class overview:
         Checks if date is in the correct format (YYYY/MM/DD)
         Raises exceptions.InvalidDate if date is not in the right format
         DOES NOT CHECK IF THE DATE IS A VALID DATE, that is for datetime to do
+
+        :param date:    Date to be checked
+        :type date:     Tuple(int, int, int)
+
+        :return:        None
         '''
         
         year, month, day = type(date[0]) == int, type(date[1]) == int, type(date[2]) == int
@@ -96,20 +108,24 @@ class overview:
         :type teamic:   (str)
 
         :param tasks:   Tasks to be done for the project
-        :type tasks:    List[task]
+        :type tasks:    List(task)
+
+        :return:        None
         '''
         self._checkDate(date)
-        self.__projects.append(_project.project(title, date, teamic, tasks))
+        self.projects.append(_project.project(title, date, teamic, tasks))
 
-    def removeProject(self, title) -> str:
+    def removeProject(self, title) -> None:
         '''
         Deletes a project
 
         :param title:   Title of the project to be removed
         :type title:    (str)
+
+        :return:        None
         '''
         i = self._getProject(title)
-        self.__projects.pop(i)
+        self.projects.pop(i)
         return
 
     def allProjects(self) -> list:
@@ -118,7 +134,7 @@ class overview:
 
         :return: List(project)
         '''
-        return self.__projects
+        return self.projects
 
     def viewProject(self, title):
         '''
@@ -130,7 +146,7 @@ class overview:
         :return:        (project)
         '''
         i = self._getProject(title)
-        return self.__projects[i]
+        return self.projects[i]
 
     def changeProName(self, title, newtitle) -> None:
         '''
@@ -141,13 +157,17 @@ class overview:
 
         :param newtitle:    The new title of the project
         :type newtitle:     (str)
+
+        :return:            None
         '''
         i = self._getProject(title)
-        self.__projects[i].setTitle(newtitle)
+        self.projects[i].setTitle(newtitle)
 
 
     def addTask(self, title, taskname, date, desc) -> None:
         '''
+        Add a task to the specified project
+
         :param title:      Title of the project
         :type title:        (str)
 
@@ -159,24 +179,32 @@ class overview:
 
         :param desc:        Description of the task
         :type desc:         (str)
+
+        :return:            None
         '''
         self._checkDate()
         i = self._getProject(title)
-        self.__projects[i].addTask(taskname, date, desc)
+        self.projects[i].addTask(taskname, date, desc)
 
     def removeTask(self, title, taskname) -> None:
         '''
+        Removes a task from the specified project
+
         :param title:      Title of the project
         :type title:        (str)
 
         :param taskname:    Name of the task to be removed
         :type taskname:     (str)
+
+        :return:            None
         '''
         i = self._getProject(title)
-        self.__projects[i].removeTask(taskname)
+        self.projects[i].removeTask(taskname)
 
     def editDesc(self, title, taskname, newdesc) -> None:
         '''
+        Edit the description of the task
+
         :param title:       Title of the project
         :type title:        (str)
 
@@ -185,17 +213,41 @@ class overview:
 
         :param newdesc:     The new description to replace the previous
         :type newdesc:      (str)
+
+        :return:            None
         '''
         i = self._getProject(title)
-        self.__projects[i].setDesc(taskname, newdesc)
+        self.projects[i].setDesc(taskname, newdesc)
 
     def taskDone(self, title, taskname) -> None:
+        '''
+        Mark a task as done
+
+        :param title:       Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task
+        :type taskname:     (str)
+
+        :return:            None
+        '''
         i = self._getProject(title)
         self.__projcts[i].taskDone(taskname)
 
     def taskUndone(self, title, taskname) -> None:
+        '''
+        Mark a task as not done
+
+        :param title:       Title of the project
+        :type title:        (str)
+
+        :param taskname:    Name of the task
+        :type taskname:     (str)
+
+        :return:            None
+        '''
         p = self._getProject(title)
-        self.__projects[p].taskUndone(taskname)
+        self.projects[p].taskUndone(taskname)
 
 
     def assignProject(self, teamic, title) -> None:
@@ -207,27 +259,35 @@ class overview:
 
         :param title:   The project title
         :type title:    (str)
+
+        :return:        None
         '''
         i = self._getTeam(teamic)
-        self.__teams[i].addProject(title)
+        self.teams[i].addProject(title)
 
         i = self._getProject(title)
-        self.__projects[i].setTeam(teamic)
+        self.projects[i].setTeam(teamic)
 
     def setProDue(self, title, date) -> None:
         '''
+        Set the completion date for a project
+
         :param title:   Title of the project
         :type title:    (str)
 
         :param date:    New due date for the project, YYYY/MM/DD format
         :type date:     tuple(int, int, int)
+
+        :return:        None
         '''
         self._checkDate()
         i = self._getProject(title)
-        self.__projects[i].setDue(date)
+        self.projects[i].setDue(date)
 
     def setTaskDue(self, title, taskname, date) -> None:
         '''
+        Set the due date for a task
+
         :param title:       Title of the project
         :type title:        (str)
 
@@ -236,21 +296,27 @@ class overview:
 
         :param date:        New due date for the task, YYYY/MM/DD format
         :type date:         tuple(int, int, int)
+
+        :return:            None
         '''
         self._checkDate()
         i = self._getProject(title)
-        self.__projects[i].setTaskDue(taskname, date)
+        self.projects[i].setTaskDue(taskname, date)
 
 
     ##team modifiers
     def addTeam(self, teamname) -> None:
         '''
+        Add a new team
+
         :param teamname:    Name of the team
         :type teamname:     (str)
+
+        :return:            None
         '''
         this_team = _team.team()
         this_team.setName(teamname)
-        self.__teams.append(this_team)
+        self.teams.append(this_team)
     
     def removeTeam(self, teamname) -> None:
         '''
@@ -258,20 +324,26 @@ class overview:
         
         :param teamname:    Name of team to be removed
         :type teamname:     (str)
+
+        :return:            None
         '''
         i = self._getTeam(teamname)
-        self.__teams.pop(i)
+        self.teams.pop(i)
 
     def changeTeamName(self, teamname, newname) -> None:
         '''
+        Change the name of a team
+
         :param teamname:    Original team name
         :type teamname:     (str)
 
         :param newname:     New team name
         :type teamname:     (str)
+
+        :return:            None
         '''
         i = self._getTeam(teamname)
-        self.__teams[i].setName(newname)
+        self.teams[i].setName(newname)
         
 
     def allTeams(self) -> list:
@@ -280,7 +352,8 @@ class overview:
 
         :return: List(team)
         '''
-        return self.__teams
+        print('hello')
+        return self.teams
 
     def viewTeam(self, teamname):
         '''
@@ -288,9 +361,9 @@ class overview:
 
         :return:    (team)
         '''
-        for i in range(len(self.__teams)):
-            if self.__teams[i].getName() == teamname:
-                return self.__teams[i]
+        for i in range(len(self.teams)):
+            if self.teams[i].getName() == teamname:
+                return self.teams[i]
 
         raise exceptions.GhostTeam
 
@@ -307,9 +380,11 @@ class overview:
 
         :param position:    New member's position
         :type position:     (str)
+
+        :return:            None
         '''
         i = self._getTeam(teamname)
-        self.__teams[i].addMember(membername, position)
+        self.teams[i].addMember(membername, position)
 
     def removeMember(self, teamname, membername, position) -> str:
         '''
@@ -323,14 +398,16 @@ class overview:
 
         :param position:    Position of the member
         :type postion:      (str)
+
+        :return:            (str)
         '''
 
         i = self._getTeam(teamname)
-        self.__teams[i].removeMember(membername, position)
+        self.teams[i].removeMember(membername, position)
         
         message = ''
-        if self.__teams[i].getMembers() == []:
-            self.__teams.pop(i)
+        if self.teams[i].getMembers() == []:
+            self.teams.pop(i)
 
             message = 'All members have been removed, team will be deleted automatically'
 
@@ -352,9 +429,11 @@ class overview:
 
         :param newpos:      New position
         :type newpos:       (str)
+        
+        :return:            None
         '''
         i = self._getTeam(teamname)
-        self.__teams[i].changePos(membername, position, newpos)
+        self.teams[i].changePos(membername, position, newpos)
 
     def allMembers(self) -> list:
         '''
@@ -363,7 +442,7 @@ class overview:
         :return: List(member)
         '''
         members = []
-        for team in self.__teams:
+        for team in self.teams:
             members += team.getMembers()
 
         return members

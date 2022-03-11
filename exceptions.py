@@ -1,6 +1,5 @@
 ##Exceptions for workflow
 
-
 class InvalidProjectName(Exception):
     def __str__(self):
         message = "Project does not exist"

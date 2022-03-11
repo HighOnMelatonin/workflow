@@ -4,45 +4,102 @@ import _project
 import exceptions
 
 class member:
-    def __init__(self, name = str(), position = str(), tasks = list()):
+    def __init__(self, name = str(), position = str(), tasks = list()) -> None:
+        '''
+        :param name:        Name of the member
+        :type name:         (str)
+
+        :param position:    Members' position
+        :type position:     (str)
+
+        :param tasks:       Tasks assigned to the member
+        :type tasks:        List(task)
+        '''
         self.__name = name
         self.__position = position
         self.__tasks = tasks
 
 
-    def getName(self):
+    def getName(self) -> str:
+        '''
+        Return the member's name
+
+        :return:    (str)
+        '''
         return self.__name
     
-    def setName(self, name):
+    def setName(self, name) -> None:
+        '''
+        Set the member's name
+
+        :param name:    The member's new name
+        :type name:     (str)
+
+        :return:    None
+        '''
         self.__name = name
 
 
-    def getPosition(self):
+    def getPosition(self) -> str:
+        '''
+        Return the member's position
+
+        :return:    (str)
+        '''
         return self.__position
 
-    def setPostion(self, position):
+    def setPostion(self, position) -> None:
+        '''
+        Set the member's position
+
+        :param position:    New position for the member
+        :type position:     (str)
+
+        :return:            None
+        '''
         self.__position = position
 
     
-    def addTask(self, title, date, desc):
-        task = _project.task(title, date, desc)
+    def addTask(self, taskname, date, desc) -> None:
+        '''
+        Add a task assigned to the team
+
+        :param taskname:    Name of the task
+        :type taskname:     (str)
+
+        :param date:        Due date for the task
+        :type date:         Tuple(int, int, int)
+
+        :param desc:        Task description
+        :type desc:         (str)
+
+        :return:            None
+        '''
+        task = _project.task(taskname, date, desc)
         self.__tasks.append(task)
 
-    def removeTask(self, title):
+    def removeTask(self, taskname) -> None:
+        '''
+        Remove a task
+
+        :param taskname:    Name of the task to be removed
+        :type taskname:     (str)
+
+        :return:            None
+        '''
         for i in range(len(self.__tasks)):
-            if self.__tasks[i].gettitle() == title:
+            if self.__tasks[i].getTitle() == taskname:
                 self.__tasks.pop(i)
 
         
 
 
 
-
 class team:
-    def __str__(self):
+    def __str__(self) -> str:
         return str((self.__size, self.__members, self.__projects, self.__teamname))
 
-    def __init__(self):
+    def __init__(self) -> None:
         '''
         self.__size stores the size of the team
         self.__members stores a list of all member objects in the team
@@ -56,6 +113,11 @@ class team:
     
 
     def getSize(self) -> int:
+        '''
+        Returns the size of the team
+
+        :return:    (int)
+        '''
         return self.__size
 
 
@@ -68,6 +130,17 @@ class team:
         return self.__members
 
     def addMember(self, name, position) -> None:
+        '''
+        Add a member to the team
+
+        :param name:        Name of the member
+        :type name:         (str)
+
+        :param position:    Assigned position
+        :type position:     (str)
+
+        :return:            None
+        '''
         newmember = member(name, position)
         self.__members.append(newmember)
         self.__size += 1
@@ -81,6 +154,8 @@ class team:
 
         :param postion: Position of the member, in case there's another member with the same name
         :type position: (str)
+
+        :return:        None
         '''
         for i in range(self.__size):
             if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
@@ -90,6 +165,20 @@ class team:
         raise exceptions.Ghost
     
     def changePos(self, name, position, newpos) -> None:
+        '''
+        Change the position of a member, if member cannot be found, raise exceptions.Ghost
+
+        :param name:        Name of the member
+        :type name:         (str)
+
+        :param position:    Member's current position
+        :type position:     (str)
+
+        :param newpos:      Member's new position
+        :type newpos:       (str)
+
+        :return:            None
+        '''
         for i in range(len(self.__members)):
             if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
                 self.__members[i].setpos(newpos)
@@ -107,6 +196,8 @@ class team:
 
         :param position:    Member's position
         :type position:     (str)
+
+        :return:            (member)
         '''
         for i in range(len(self.__members)):
             if self.__members[i].getName() == name and self.__members[i].getPosition() == position:
@@ -144,6 +235,8 @@ class team:
 
         :param teamname:    The new name
         :type teamname:     (str)
+
+        :return:            None
         '''
         self.__teamname = teamname
 
